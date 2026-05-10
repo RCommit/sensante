@@ -3,8 +3,9 @@ SenSante - Exploration du dataset patients_dakar .csv
 Lab 1 : Git , Python et Structure Projet
 """
 import pandas as pd
+
 # ===== CHARGER LES DONNEES =====
-df = pd . read_csv ("data/patients_dakar.csv")
+df = pd.read_csv ("data/patients_dakar.csv")
 # ===== PREMIERS A P E R U S =====
 print ("=" * 50)
 print (" SENSANTE - Exploration du dataset ")
