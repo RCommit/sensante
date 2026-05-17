@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import joblib
 import numpy as np
+from fastapi.middleware.cors import CORSMiddleware
 
 
 # --- Schemas Pydantic ---
@@ -34,6 +35,15 @@ app = FastAPI(
     version="0.2.0"
 )
 
+# ✅ CORS ici, juste après app, avant les routes
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins     = ["*"],
+    allow_credentials = True,
+    allow_methods     = ["*"],
+    allow_headers     = ["*"],
+)
+
 
 # --- Chargement du modèle (une seule fois) ---
 print("Chargement du modèle...")
@@ -48,6 +58,16 @@ print(f"Modèle chargé : {list(model.classes_)}")
 @app.get("/health")
 def health_check():
     return {"status": "ok", "message": "SenSante API is running"}
+
+@app.get("/model-info")
+def model_info():
+    """Informations sur le modèle chargé."""
+    return {
+        "type": type(model).__name__,
+        "nombre_arbres": model.n_estimators,
+        "classes": list(model.classes_),
+        "nombre_features": model.n_features_in_
+    }
 
 
 @app.post("/predict", response_model=DiagnosticOutput)
@@ -99,7 +119,7 @@ def predict(patient: PatientInput):
 
     # 5. Recommandations
     messages = {
-        "palu":   "Suspicion de paludisme. Consultez rapidement.",
+        "paludisme":"Suspicion de paludisme. Consultez rapidement.",
         "grippe": "Suspicion de grippe. Repos et hydratation.",
         "typh":   "Suspicion de typhoïde. Consultation nécessaire.",
         "sain":   "Pas de pathologie détectée."
@@ -112,4 +132,3 @@ def predict(patient: PatientInput):
         confiance=confiance,
         message=messages.get(diagnostic, "Consultez un médecin.")
     )
-    
